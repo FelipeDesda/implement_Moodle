@@ -38,6 +38,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     curl \
     unzip \
     git \
+    # Cliente PostgreSQL (para pg_isready no entrypoint)
+    postgresql-client \
     && rm -rf /var/lib/apt/lists/*
 
 # -----------------------------------------------------------------------------
@@ -67,6 +69,8 @@ RUN docker-php-ext-install \
     simplexml \
     # Internacionalização e formatação de datas/números por locale
     intl \
+    # Driver PostgreSQL nativo (necessário para Moodle se comunicar com PostgreSQL)
+    pgsql \
     # Driver PDO para PostgreSQL (conexão com o banco de dados)
     pdo_pgsql \
     # Processamento de imagens (thumbnails, avatares de usuários)
@@ -150,5 +154,14 @@ RUN a2enmod rewrite
 # -----------------------------------------------------------------------------
 # COPY apache-moodle.conf /etc/apache2/sites-available/000-default.conf
 
+# -----------------------------------------------------------------------------
+# Copia o script de entrypoint customizado
+# -----------------------------------------------------------------------------
+COPY docker-entrypoint.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/docker-entrypoint.sh
+
 # Porta exposta pelo contêiner (mapeada para 8080 no host via docker-compose.yml)
 EXPOSE 80
+
+# Define o entrypoint customizado
+ENTRYPOINT ["docker-entrypoint.sh"]
