@@ -73,8 +73,20 @@ web_modules/
 
 # Terraform — arquivos sensíveis e de estado
 *.tfvars
+*.tfvars.json
 terraform.tfstate
-terraform.tfstate.backup
+terraform.tfstate.*
+*.tfplan
+tfplan
+.terraform/
+.terraform.lock.hcl
+backend.tf
+crash.log
+crash.*.log
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
 
 # Credenciais e chaves privadas
 *.pem
