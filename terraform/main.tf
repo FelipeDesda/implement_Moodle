@@ -89,7 +89,6 @@ module "database" {
   vpc_id                = module.networking.vpc_id
   private_subnet_a_id   = module.networking.private_subnet_a_id
   private_subnet_b_id   = module.networking.private_subnet_b_id
-  ec2_security_group_id = module.compute.ec2_security_group_id
   
   # Configuração do RDS
   db_instance_class     = var.db_instance_class
@@ -102,7 +101,7 @@ module "database" {
   environment           = var.environment
   project_name          = var.project_name
 
-  depends_on = [module.networking, module.compute]
+  depends_on = [module.networking]
 }
 
 # ==============================================================================
@@ -139,4 +138,19 @@ module "compute" {
   project_name      = var.project_name
 
   depends_on = [module.networking]
+}
+
+# ==============================================================================
+# Security Group Rule - Permite conexão EC2 -> RDS
+# ==============================================================================
+# Criado após ambos os security groups existirem para evitar dependência circular
+
+resource "aws_security_group_rule" "rds_ingress_from_ec2" {
+  type                     = "ingress"
+  from_port                = 5432
+  to_port                  = 5432
+  protocol                 = "tcp"
+  source_security_group_id = module.compute.ec2_security_group_id
+  security_group_id        = module.database.db_security_group_id
+  description              = "PostgreSQL from EC2"
 }

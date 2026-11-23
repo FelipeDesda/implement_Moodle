@@ -85,7 +85,7 @@ services:
       - "80:8080"
     environment:
       - MOODLE_DATABASE_TYPE=pgsql
-      - MOODLE_DATABASE_HOST=${db_host%%:*}
+      - MOODLE_DATABASE_HOST=${db_host}
       - MOODLE_DATABASE_PORT_NUMBER=5432
       - MOODLE_DATABASE_NAME=${db_name}
       - MOODLE_DATABASE_USER=${db_user}
@@ -126,11 +126,8 @@ cd $MOODLE_DIR
 # Wait for RDS to be available
 echo "Waiting for database to be ready..."
 
-# Extract hostname from endpoint (remove :port if present)
-DB_HOST="${db_host%%:*}"
-
 for i in {1..30}; do
-  if docker run --rm postgres:15 pg_isready -h "$DB_HOST" -U ${db_user} > /dev/null 2>&1; then
+  if docker run --rm postgres:15 pg_isready -h "${db_host}" -U ${db_user} > /dev/null 2>&1; then
     echo "Database is ready!"
     break
   fi

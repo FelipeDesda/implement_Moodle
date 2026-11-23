@@ -26,18 +26,6 @@ resource "aws_security_group" "rds" {
   }
 }
 
-# Regra de ingresso separada para evitar dependência circular
-# A regra será criada depois que o EC2 SG existir
-resource "aws_security_group_rule" "rds_ingress_from_ec2" {
-  type                     = "ingress"
-  from_port                = 5432
-  to_port                  = 5432
-  protocol                 = "tcp"
-  source_security_group_id = var.ec2_security_group_id
-  security_group_id        = aws_security_group.rds.id
-  description              = "PostgreSQL from EC2"
-}
-
 # ------------------------------------------------------------------------------
 # DB Subnet Group
 # ------------------------------------------------------------------------------
@@ -59,7 +47,7 @@ resource "aws_db_subnet_group" "main" {
 resource "aws_db_instance" "moodle" {
   identifier     = "${var.project_name}-postgres"
   engine         = "postgres"
-  engine_version = "15.4"
+  engine_version = "15"
   instance_class = var.db_instance_class
 
   # Storage
@@ -92,9 +80,8 @@ resource "aws_db_instance" "moodle" {
   # Performance Insights (opcional - disponível em db.t3.micro)
   enabled_cloudwatch_logs_exports = ["postgresql", "upgrade"]
 
-  # Monitoring
-  monitoring_interval = 60
-  monitoring_role_arn = data.aws_iam_role.rds_monitoring.arn
+  # Monitoring - Disabled for AWS Academy/Learner Lab compatibility
+  monitoring_interval = 0
 
   # Updates
   auto_minor_version_upgrade = true
@@ -114,12 +101,4 @@ resource "aws_db_instance" "moodle" {
       final_snapshot_identifier,
     ]
   }
-}
-
-# ------------------------------------------------------------------------------
-# Data Source - IAM Role para Enhanced Monitoring
-# ------------------------------------------------------------------------------
-
-data "aws_iam_role" "rds_monitoring" {
-  name = "LabRole"
 }

@@ -21,11 +21,6 @@ variable "private_subnet_b_id" {
   type        = string
 }
 
-variable "ec2_security_group_id" {
-  description = "ID do Security Group da EC2 (para permitir conexão ao RDS)"
-  type        = string
-}
-
 # ------------------------------------------------------------------------------
 # Database Configuration
 # ------------------------------------------------------------------------------
